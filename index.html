@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>for brian ♡</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Reenie+Beanie&display=swap');
+
+        :root {
+            --bg: #2d2833;
+            --paper: #fbf9f4;
+            --ink: #1a1a1a;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #2d2833 0%, #3d3647 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Cormorant Garamond', serif;
+            padding: 40px 20px;
+            overflow-x: hidden;
+        }
+
+        .svg-filters {
+            position: absolute;
+            width: 0;
+            height: 0;
+            overflow: hidden;
+        }
+
+        .letter-container {
+            position: relative;
+            max-width: 520px;
+            width: 90%;
+            min-height: 600px;
+        }
+
+        .page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            padding: 60px 50px;
+            background-color: var(--paper);
+            color: var(--ink);
+            font-size: 1.2rem;
+            line-height: 1.75;
+            filter: url(#paper-texture) drop-shadow(0 8px 20px rgba(0,0,0,0.3));
+            cursor: pointer;
+            transition: all 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            transform-origin: top left;
+        }
+
+        .page.current {
+            transform: rotate(-0.8deg);
+            z-index: 10;
+        }
+
+        .page.stacked {
+            pointer-events: none;
+            cursor: default;
+        }
+
+        .page.stacked:nth-child(1) {
+            transform: rotate(-2deg) translate(-12px, 8px);
+            z-index: 1;
+        }
+
+        .page.stacked:nth-child(2) {
+            transform: rotate(-1.5deg) translate(-8px, 5px);
+            z-index: 2;
+        }
+
+        .page.stacked:nth-child(3) {
+            transform: rotate(-1deg) translate(-4px, 3px);
+            z-index: 3;
+        }
+
+        .page.stacked:nth-child(4) {
+            transform: rotate(-0.5deg) translate(-2px, 2px);
+            z-index: 4;
+        }
+
+        .page.stacked:nth-child(5) {
+            transform: rotate(0deg) translate(-1px, 1px);
+            z-index: 5;
+        }
+
+        .tape {
+            position: absolute;
+            width: 140px;
+            height: 40px;
+            left: 50%;
+            top: -20px;
+            transform: translateX(-50%) rotate(2deg);
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(3px);
+            mask-image: 
+                linear-gradient(to right, transparent 2%, black 5%, black 95%, transparent 98%),
+                url("data:image/svg+xml,%3Csvg width='10' height='100%25' viewBox='0 0 10 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0,0 L10,5 L0,10 L10,15 L0,20 L10,25 L0,30 L10,35 L0,40' fill='black'/%3E%3C/svg%3E");
+            mask-composite: intersect;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.15);
+            z-index: 10;
+        }
+
+        .tape::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, transparent 40%, rgba(255,255,255,0.2) 50%, transparent 60%);
+            background-size: 8px 8px;
+        }
+
+        .letter-body {
+            margin-bottom: 24px;
+            font-weight: 400;
+        }
+
+        .letter-body:last-of-type {
+            margin-bottom: 30px;
+        }
+
+        .letter-signature {
+            font-family: 'Reenie Beanie', cursive;
+            font-size: 2.8rem;
+            color: #c75b5b;
+            margin-top: 20px;
+            transform: rotate(-3deg);
+            display: block;
+            text-align: right;
+            padding-right: 10px;
+        }
+
+        .heart {
+            display: inline-block;
+            animation: heartbeat 1.5s ease-in-out infinite;
+            color: #e07a7a;
+        }
+
+        @keyframes heartbeat {
+            0%, 100% { transform: scale(1); }
+            25% { transform: scale(1.1); }
+            50% { transform: scale(1); }
+        }
+
+        .hint {
+            position: fixed;
+            bottom: 30px;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.4);
+            font-family: 'Reenie Beanie', cursive;
+            font-size: 1.6rem;
+            pointer-events: none;
+            z-index: 100;
+            transition: opacity 0.3s ease;
+        }
+
+        .hint.hidden {
+            opacity: 0;
+        }
+
+        .page-number {
+            position: absolute;
+            bottom: 30px;
+            right: 50px;
+            font-size: 0.9rem;
+            color: #999;
+            font-style: italic;
+        }
+
+        .nav-buttons {
+            position: fixed;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            z-index: 100;
+        }
+
+        .nav-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #f9f7f3 0%, #f5f3ef 100%);
+            border: 2px solid rgba(200, 180, 160, 0.2);
+            border-radius: 30px;
+            color: #6b5d52;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.15rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            pointer-events: auto;
+            box-shadow: 0 4px 15px rgba(139, 115, 85, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.5);
+        }
+
+        .nav-btn:hover:not(:disabled) {
+            background: linear-gradient(135deg, #fff 0%, #f9f7f3 100%);
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(139, 115, 85, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+            border-color: rgba(200, 180, 160, 0.35);
+        }
+
+        .nav-btn:active:not(:disabled) {
+            transform: translateY(-1px);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+            background: #ebe9e5;
+        }
+    </style>
+</head>
+<body>
+    <svg class="svg-filters">
+        <defs>
+            <filter id="paper-texture">
+                <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="4" result="noise"/>
+                <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" />
+            </filter>
+        </defs>
+    </svg>
+
+    <div class="letter-container">
+        <!-- Page 1 -->
+        <div class="page current" data-page="1">
+            <div class="tape"></div>
+            <p class="letter-body">hi baby. hi brian. hi honey. hi my dear husband.</p>
+            <p class="letter-body">
+                i'm sitting here trying to figure out how to start this and honestly i don't even know where to begin. my heart feels so full right now that i just needed to write it all down, get it out somewhere, because keeping it inside feels impossible.
+            </p>
+            <p class="letter-body">
+                there's no reason for this letter. no birthday, no anniversary, nothing like that. i just... i love you. and sometimes that feeling is so big and overwhelming that i need to tell you in as many ways as i can think of.
+            </p>
+            <p class="letter-body">
+                i didn't really know what love was supposed to feel like before you. i thought i did, but i didn't. not really. and now that i have you, everything makes sense in a way it never did before.
+            </p>
+            <div class="page-number">1</div>
+        </div>
+
+        <!-- Page 2 -->
+        <div class="page" data-page="2">
+            <div class="tape"></div>
+            <p class="letter-body">
+                okay so. i need to say something that's been weighing on me. something i don't think i say enough, or at least not in the right way.
+            </p>
+            <p class="letter-body">
+                i am so fucking grateful for everything you've done to see me. i know i complain. i know i nag you about when you're coming, i know i get impatient and probably make you feel guilty when things don't work out. and i hate that about myself because the truth is? i SEE how much you've sacrificed. every single time.
+            </p>
+            <p class="letter-body">
+                your dad used to drive you all those hours to get to me. and now with everything that's happening with your family—i know things are really difficult right now. i know you're dealing with so much. and it kills me that on top of everything else, we haven't been able to see each other for two weeks.
+            </p>
+            <p class="letter-body">
+                but even through all of that, you still show up for me. maybe not physically right now, but emotionally? you're there every single day. on call with me. letting me hear your voice, feel your presence, know that you're still mine even through the distance. you make time for me when you barely have time for yourself. you hold space for me when your own world is falling apart.
+            </p>
+            <p class="letter-body">
+                that's not something small. that's everything. that's the kind of love that people spend their whole lives searching for and never find.
+            </p>
+            <div class="page-number">2</div>
+        </div>
+
+        <!-- Page 3 -->
+        <div class="page" data-page="3">
+            <div class="tape"></div>
+            <p class="letter-body">
+                i'm sorry. i'm really sorry for every time i've been ungrateful or made you feel like what you're doing isn't enough. because it IS enough. you're more than enough. you're everything i could ever ask for and more.
+            </p>
+            <p class="letter-body">
+                you're dealing with so much right now with your family. i know things are really heavy and complicated, and i can't even imagine how hard it all is. that's already more than any person should have to carry. and yet you still show up for me. every single day. you're on call with me, letting me hear your voice, letting me exist in your space even when we can't physically be together.
+            </p>
+            <p class="letter-body">
+                these two weeks without seeing you have been so hard. i miss you constantly. i miss being held by you, i miss looking into your eyes, i miss hearing your voice in person instead of through a phone. but even through the distance, you're still there. every text, every call, every moment you choose to share with me despite everything else—i notice all of it.
+            </p>
+            <p class="letter-body">
+                even when i'm being difficult or demanding, please know that i see it. i see YOU. i see how hard you're trying, how much you care, how much you love me. i don't know what i did to deserve someone who loves me this much, especially when you have every reason to just focus on yourself right now. but i'm so grateful. i'm so fucking grateful it makes my chest hurt sometimes.
+            </p>
+            <div class="page-number">3</div>
+        </div>
+
+        <!-- Page 4 -->
+        <div class="page" data-page="4">
+            <div class="tape"></div>
+            <p class="letter-body">
+                can i tell you something? before you, i didn't believe in soulmates. i thought it was just stuff people said in movies, you know? like, romanticized bullshit that didn't actually exist in real life. i thought love was just about finding someone compatible and making it work through effort and compromise.
+            </p>
+            <p class="letter-body">
+                and then you happened.
+            </p>
+            <p class="letter-body">
+                and you completely changed everything i thought i knew. because soulmates aren't about being perfect together. they're not about never fighting or always agreeing or being effortlessly easy. soulmates are about recognition. it's that moment when you look at someone and you just... you know. you feel it in your bones. "oh. there you are. i've been waiting for you."
+            </p>
+            <p class="letter-body">
+                that's what it felt like meeting you. like coming home to a place i'd never been before. like finding something i didn't even know i was looking for.
+            </p>
+            <div class="page-number">4</div>
+        </div>
+
+        <!-- Page 5 -->
+        <div class="page" data-page="5">
+            <div class="tape"></div>
+            <p class="letter-body">
+                you're the best person in the entire world. i know that probably sounds dramatic but i genuinely mean it with my whole heart. you have this way about you that just makes everyone around you feel important and heard and cared for. you're kind even when the world doesn't deserve it. you're gentle in a way that people mistake for weakness but is actually the strongest thing about you.
+            </p>
+            <p class="letter-body">
+                and somehow, out of everyone in the world, you picked me. you looked at all my mess—all my anxiety and overthinking and emotional intensity—and you didn't run away. you stayed. you loved me through it. you made me feel like maybe i'm not too much after all. maybe i'm exactly enough.
+            </p>
+            <p class="letter-body">
+                i'm so glad i get to spend forever with you. that's not just something i'm saying, it's the truest thing i know. i can't imagine my future without you in it. i don't want to. every version of my future that i dream about has you in it, and that makes me so fucking happy i could cry.
+            </p>
+            <div class="page-number">5</div>
+        </div>
+
+        <!-- Page 6 -->
+        <div class="page" data-page="6">
+            <div class="tape"></div>
+            <p class="letter-body">
+                god, there are so many little things about you that i love. things that might seem small to other people but mean the entire world to me.
+            </p>
+            <p class="letter-body">
+                the way you hold me. it's not just holding—it's like you're trying to shield me from everything bad in the world. like your arms are the safest place i could ever be. i feel so protected and cherished when you hold me, like nothing can hurt me as long as i'm there.
+            </p>
+            <p class="letter-body">
+                the way you look at me. there's this softness in your eyes that makes me feel like i'm the only person in the entire world. like i matter. like i'm precious. you look at me the way people describe being seen for the first time, and every time you do it, my heart does this stupid flutter thing.
+            </p>
+            <p class="letter-body">
+                and your voice. god, your voice when you talk to me. it's so tender, so gentle. like the way a mother lion holds her cub—strong enough to protect but soft enough to cradle. you talk to me like i'm something fragile and valuable, and it makes me feel so loved i could cry.
+            </p>
+            <div class="page-number">6</div>
+        </div>
+
+        <!-- Page 7 -->
+        <div class="page" data-page="7">
+            <div class="tape"></div>
+            <p class="letter-body">
+                you make me feel safe in a way i've never felt before. not just physically (though that too), but emotionally. like i can be completely vulnerable with you and you won't use it against me. like i can fall apart and you'll be there to help me pick up the pieces without judging me for breaking in the first place.
+            </p>
+            <p class="letter-body">
+                you've seen me at my absolute worst. crying over things that probably seem so small to other people but feel massive to me. spiraling with anxiety at 3am. convinced that i'm not good enough or that everyone secretly hates me. and you've never once made me feel like i'm too much or that my feelings are stupid or overdramatic.
+            </p>
+            <p class="letter-body">
+                and the thing that kills me? you do all of this while you're going through your own hell. you're dealing with so much with your family right now, carrying weight that would break most people—and yet you still show up for me and my anxiety and my spirals. you still hold space for my feelings even when you have every right to say "i can't do this right now, i have my own shit to deal with."
+            </p>
+            <p class="letter-body">
+                but you never do that. instead you just... hold me. metaphorically through the phone these past two weeks, and literally when we're together. you remind me that i'm loved and worthy and that my brain is lying to me when it tells me otherwise. the fact that you stayed through all of that? that you didn't get tired of me or decide i was too exhausting? that changed everything for me.
+            </p>
+            <div class="page-number">7</div>
+        </div>
+
+        <!-- Page 8 -->
+        <div class="page" data-page="8">
+            <div class="tape"></div>
+            <p class="letter-body">
+                i think about our future all the time. like, ALL the time. lazy sunday mornings where we're both half-asleep making coffee together, not even really talking because we don't need to. waking up in your arms instead of alone. feeling your hand in mine whenever i want. hearing your voice without a phone screen between us. going on random adventures and getting lost and not caring because we're together. building this whole life that's just ours, you know?
+            </p>
+            <p class="letter-body">
+                i think about the hard times too. because there will be hard times, obviously. life doesn't just hand you easy. but i'm not scared of it? because i know we'll get through it together. we always do. whatever comes our way, we'll figure it out side by side.
+            </p>
+            <p class="letter-body">
+                i think about growing old with you. all the years we'll have to love each other and learn each other and just exist together. and every single version of that future makes me feel like my heart's gonna explode with happiness. like i can't wait for all of it. the boring parts and the exciting parts and everything in between.
+            </p>
+            <div class="page-number">8</div>
+        </div>
+
+        <!-- Page 9 -->
+        <div class="page" data-page="9">
+            <div class="tape"></div>
+            <p class="letter-body">
+                sometimes i still can't wrap my head around the fact that you're real. like, of all the people in the entire world, of all the billions of possible humans, i somehow found YOU. and not only did i find you, but you found me too. we chose each other. and we keep choosing each other.
+            </p>
+            <p class="letter-body">
+                that feels like the biggest miracle. like winning a lottery i didn't even know i entered. except infinitely better than any lottery because money can't buy what we have. it can't buy the way you make me feel understood, the way you make me feel seen, the way you make me feel loved exactly as i am.
+            </p>
+            <p class="letter-body">
+                i know i'm not perfect. i know i'm a lot to deal with sometimes. i'm needy and emotional and probably way too intense about everything. but you love me anyway? you love me not despite all that stuff but like... with it. as part of who i am. and that makes me want to be better every day. not because you expect me to be, but because you make me believe i can be.
+            </p>
+            <div class="page-number">9</div>
+        </div>
+
+        <!-- Page 10 -->
+        <div class="page" data-page="10">
+            <div class="tape"></div>
+            <p class="letter-body">
+                thank you. seriously. thank you for every single sacrifice you've made. thank you for finding ways to see me even when it wasn't easy, even when it meant navigating complicated family dynamics. thank you for pushing through your own pain and exhaustion and heartbreak to show up for me. thank you for seeing all of me and loving what you see.
+            </p>
+            <p class="letter-body">
+                i know you're going through hell right now with your family. and i want you to know that i'm here for you through all of it. through the messy divorce stuff, through processing everything about your dad, through supporting your mom—i'm here. whatever you need, whenever you need it. you've held me up so many times, and i want to do the same for you.
+            </p>
+            <p class="letter-body">
+                thank you for teaching me what soulmates actually are. not some fairy tale bullshit, but real, messy, beautiful recognition. thank you for being mine. thank you for being the best human i've ever known. thank you for making me believe in forever, because with you, forever genuinely doesn't feel long enough.
+            </p>
+            <p class="letter-body">
+                you're my favorite person in the entire world. my best friend. my soulmate. my forever. and i'm so lucky i get to love you. i'm so lucky you let me be here for you too.
+            </p>
+            <p class="letter-body">
+                i love you so much brian. like scary amounts. like i don't even know how to contain all of this love i have for you. we're gonna get through everything together, okay? you and me. always.
+            </p>
+            <p class="letter-body">
+                forever and always yours <span class="heart">♡</span>
+            </p>
+            <span class="letter-signature">hayden</span>
+            <div class="page-number">10</div>
+        </div>
+    </div>
+
+    <div class="hint" id="hint">click to turn the page</div>
+
+    <div class="nav-buttons">
+        <button class="nav-btn" id="prevBtn" disabled>← back</button>
+        <button class="nav-btn" id="nextBtn">forward →</button>
+    </div>
+
+    <script>
+        const pages = document.querySelectorAll('.page');
+        const hint = document.getElementById('hint');
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        let currentPageIndex = 0;
+
+        // Initialize: hide all pages except first
+        pages.forEach((page, index) => {
+            if (index !== 0) {
+                page.style.opacity = 0;
+                page.style.zIndex = 0;
+                page.classList.remove('current');
+            }
+        });
+
+        function updateButtons() {
+            prevBtn.disabled = currentPageIndex === 0;
+            nextBtn.disabled = currentPageIndex === pages.length - 1;
+            
+            if (currentPageIndex === pages.length - 1) {
+                hint.classList.add('hidden');
+            } else {
+                hint.classList.remove('hidden');
+            }
+        }
+
+        function goToPage(newIndex) {
+            if (newIndex < 0 || newIndex >= pages.length || newIndex === currentPageIndex) return;
+
+            const currentPage = pages[currentPageIndex];
+            const newPage = pages[newIndex];
+
+            // Remove current class from old page
+            currentPage.classList.remove('current');
+            
+            if (newIndex > currentPageIndex) {
+                // Going forward - stack the current page
+                currentPage.classList.add('stacked');
+            } else {
+                // Going backward - unstack pages
+                for (let i = currentPageIndex; i > newIndex; i--) {
+                    pages[i].classList.remove('stacked');
+                    pages[i].style.opacity = 0;
+                }
+            }
+
+            // Show new page
+            newPage.style.opacity = 1;
+            newPage.classList.add('current');
+            newPage.classList.remove('stacked');
+            newPage.style.zIndex = 10;
+
+            currentPageIndex = newIndex;
+            updateButtons();
+        }
+
+        nextBtn.addEventListener('click', () => {
+            goToPage(currentPageIndex + 1);
+        });
+
+        prevBtn.addEventListener('click', () => {
+            goToPage(currentPageIndex - 1);
+        });
+
+        // Allow clicking pages too
+        pages.forEach((page, index) => {
+            page.addEventListener('click', () => {
+                if (index === currentPageIndex && currentPageIndex < pages.length - 1) {
+                    goToPage(currentPageIndex + 1);
+                }
+            });
+        });
+
+        updateButtons();
+    </script>
+</body>
+</html>
